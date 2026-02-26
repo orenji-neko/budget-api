@@ -23,8 +23,7 @@ public class ItemRepository : IItemRepository
 
   public async Task<int> CountAsync()
   {
-    var count = await _context.Items.CountAsync();
-    return count;
+    return await _context.Items.CountAsync();
   }
 
   public async Task<bool> ExistsAsync(Expression<Func<Item, bool>> predicate)
@@ -32,36 +31,39 @@ public class ItemRepository : IItemRepository
     if (predicate == null)
       throw new ArgumentNullException(nameof(predicate));
 
-    return await _context.Set<Item>().AnyAsync();
+    return await _context.Items.AnyAsync(predicate);
   }
 
-  public Task<IReadOnlyList<Item>> FindAsync(Expression<Func<Item, bool>> predicate)
+  public async Task<IReadOnlyList<Item>> FindAsync(Expression<Func<Item, bool>> predicate)
   {
-    throw new NotImplementedException();
+    if (predicate == null)
+      throw new ArgumentNullException(nameof(predicate));
+
+    return await _context.Items.Where(predicate).ToListAsync();
   }
 
-  public Task<Item?> GetByIdAsync(int id)
+  public async Task<Item?> GetByIdAsync(int id)
   {
-    throw new NotImplementedException();
+    return await _context.Items.FindAsync(id);
   }
 
   public void Remove(Item item)
   {
-    throw new NotImplementedException();
+    _context.Items.Remove(item);
   }
 
-  public Task<int> SaveChangesAsync()
+  public async Task<int> SaveChangesAsync()
   {
-    throw new NotImplementedException();
+    return await _context.SaveChangesAsync();
   }
 
-  public Task<IReadOnlyList<Item>> ToListAsync()
+  public async Task<IReadOnlyList<Item>> ToListAsync()
   {
-    throw new NotImplementedException();
+    return await _context.Items.ToListAsync();
   }
 
   public void Update(Item item)
   {
-    throw new NotImplementedException();
+    _context.Items.Update(item);
   }
 }

@@ -1,13 +1,18 @@
 using BudgetAPI.Data;
+using BudgetAPI.Interfaces.Repository;
+using BudgetAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
+    options.UseInMemoryDatabase("dev")
 );
 builder.Services.AddControllers();
+
+// repositories
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
 
 var app = builder.Build();
 
