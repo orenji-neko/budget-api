@@ -1,9 +1,6 @@
-using BudgetAPI.Data;
 using BudgetAPI.Interfaces.Repository;
 using BudgetAPI.Models;
-using BudgetAPI.Repositories;
 using BudgetAPI.Requests;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetAPI.Controllers
@@ -20,14 +17,25 @@ namespace BudgetAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<Item[]>> GetAll()
         {
             var items = await _item.ToListAsync();
             return Ok(items);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Item>> GetById(int id)
+        {
+            var item = await _item.GetByIdAsync(id);
+
+            if (item == null)
+                return NotFound();
+
+            return Ok(item);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateItemDTO dto)
+        public async Task<IActionResult> CreateItem([FromBody] CreateItemDTO dto)
         {
             var item = new Item
             {
@@ -38,7 +46,39 @@ namespace BudgetAPI.Controllers
             await _item.AddAsync(item);
             await _item.SaveChangesAsync();
 
-            return Ok();
+            return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateItem(int id, [FromBody] Item item)
+        {
+            var item2 = await _item.GetByIdAsync(id);
+
+            if (item2 == null)
+                return NotFound();
+
+            if (item.Id != id)
+                return BadRequest();
+
+            _item.Update(item);
+            await _item.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteItem(int id)
+        {
+            var item = await _item.GetByIdAsync(id);
+
+            // not found
+            if (item == null)
+                return NotFound();
+
+            _item.Remove(item);
+            await _item.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
