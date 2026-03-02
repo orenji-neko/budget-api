@@ -47,11 +47,6 @@ public class ItemRepository : IItemRepository
     return await _context.Items.FindAsync(id);
   }
 
-  public void Remove(Item item)
-  {
-    _context.Items.Remove(item);
-  }
-
   public async Task<int> SaveChangesAsync()
   {
     return await _context.SaveChangesAsync();
@@ -65,5 +60,10 @@ public class ItemRepository : IItemRepository
   public void Update(Item item)
   {
     _context.Items.Update(item);
+  }
+
+  public void Remove(Item item)
+  {
+    _context.Items.Remove(item);
   }
 }
