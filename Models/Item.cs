@@ -14,5 +14,5 @@ public class Item
   [Required]
   public decimal Price { get; set; }
 
-  public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

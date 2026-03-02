@@ -1,3 +1,4 @@
+using BudgetAPI.Interfaces;
 using BudgetAPI.Interfaces.Repository;
 using BudgetAPI.Models;
 using BudgetAPI.Requests;
@@ -9,9 +10,9 @@ namespace BudgetAPI.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly IItemRepository _item;
+        private readonly IItemService _item;
 
-        public ItemController(IItemRepository item)
+        public ItemController(IItemService item)
         {
             _item = item;
         }
@@ -19,14 +20,14 @@ namespace BudgetAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<Item[]>> GetAll()
         {
-            var items = await _item.ToListAsync();
+            var items = await _item.GetAllItemsAsync();
             return Ok(items);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Item>> GetById(int id)
         {
-            var item = await _item.GetByIdAsync(id);
+            var item = await _item.GetItemAsync(id);
 
             if (item == null)
                 return NotFound();
@@ -43,8 +44,7 @@ namespace BudgetAPI.Controllers
                 Price = dto.Price
             };
 
-            await _item.AddAsync(item);
-            await _item.SaveChangesAsync();
+            await _item.CreateItemAsync(item);
 
             return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
         }
@@ -52,7 +52,7 @@ namespace BudgetAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateItem(int id, [FromBody] Item item)
         {
-            var item2 = await _item.GetByIdAsync(id);
+            var item2 = await _item.GetItemAsync(id);
 
             if (item2 == null)
                 return NotFound();
@@ -60,23 +60,20 @@ namespace BudgetAPI.Controllers
             if (item.Id != id)
                 return BadRequest();
 
-            _item.Update(item);
-            await _item.SaveChangesAsync();
-
+            await _item.UpdateItemAsync(id, item);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
         {
-            var item = await _item.GetByIdAsync(id);
+            var item = await _item.GetItemAsync(id);
 
             // not found
             if (item == null)
                 return NotFound();
 
-            _item.Remove(item);
-            await _item.SaveChangesAsync();
+            await _item.DeleteItemAsync(id);
 
             return NoContent();
         }
