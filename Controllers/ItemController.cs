@@ -10,24 +10,24 @@ namespace BudgetAPI.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly IItemService _item;
+        private readonly IItemService _itemService;
 
         public ItemController(IItemService item)
         {
-            _item = item;
+            _itemService = item;
         }
 
         [HttpGet]
-        public async Task<ActionResult<Item[]>> GetAll()
+        public async Task<ActionResult<IEnumerable<Item>>> GetAll()
         {
-            var items = await _item.GetAllItemsAsync();
+            var items = await _itemService.GetAllAsync();
             return Ok(items);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Item>> GetById(int id)
         {
-            var item = await _item.GetItemAsync(id);
+            var item = await _itemService.GetByIdAsync(id);
 
             if (item == null)
                 return NotFound();
@@ -36,15 +36,9 @@ namespace BudgetAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] CreateItemDTO dto)
+        public async Task<IActionResult> CreateItem([FromBody] Item item)
         {
-            var item = new Item
-            {
-                Name = dto.Name,
-                Price = dto.Price
-            };
-
-            await _item.CreateItemAsync(item);
+            await _itemService.CreateAsync(item);
 
             return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
         }
@@ -52,29 +46,28 @@ namespace BudgetAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateItem(int id, [FromBody] Item item)
         {
-            var item2 = await _item.GetItemAsync(id);
+            var _item = await _itemService.GetByIdAsync(id);
 
-            if (item2 == null)
+            if (_item == null)
                 return NotFound();
 
             if (item.Id != id)
                 return BadRequest();
 
-            await _item.UpdateItemAsync(id, item);
+            await _itemService.UpdateAsync(item);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
         {
-            var item = await _item.GetItemAsync(id);
+            var item = await _itemService.GetByIdAsync(id);
 
             // not found
             if (item == null)
                 return NotFound();
 
-            await _item.DeleteItemAsync(id);
-
+            await _itemService.DeleteAsync(id);
             return NoContent();
         }
     }

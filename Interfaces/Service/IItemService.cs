@@ -6,11 +6,9 @@ namespace BudgetAPI.Interfaces;
 
 public interface IItemService
 {
-  Task<Item?> GetItemAsync(int id);
-  Task<IReadOnlyList<Item>> GetAllItemsAsync();
-  Task<IReadOnlyList<Item>> SearchItemsAsync(Expression<Func<Item, bool>> predicate);
-
-  Task CreateItemAsync(Item item);
-  Task UpdateItemAsync(int id, Item item);
-  Task DeleteItemAsync(int id);
+    Task<IEnumerable<Item>> GetAllAsync();
+    Task<Item?> GetByIdAsync(int id);
+    Task<Item?> CreateAsync(Item item);
+    Task<Item?> UpdateAsync(Item item);
+    Task<Item?> DeleteAsync(int id);
 }

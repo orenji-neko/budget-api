@@ -4,3 +4,28 @@ GET {{BudgetAPI_HostAddress}}/api/item
 Accept: application/json
 
 ###
+
+POST {{BudgetAPI_HostAddress}}/api/item
+Content-Type: application/json
+Accept: application/json
+{
+  "name": "Booklet",
+  "price": 67.00
+}
+
+###
+
+PUT {{BudgetAPI_HostAddress}}/api/item/1
+Content-Type: application/json
+Accept: application/json
+{
+  "id": 1,
+  "name": "Booklet 2",
+  "price": 67.00
+}
+###
+
+DELETE {{BudgetAPI_HostAddress}}/api/item/1
+Accept: application/json
+
+###

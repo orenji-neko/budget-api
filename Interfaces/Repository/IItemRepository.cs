@@ -6,22 +6,14 @@ namespace BudgetAPI.Interfaces.Repository;
 
 public interface IItemRepository
 {
-  // READ
-  Task<Item?> GetByIdAsync(int id);
-  Task<IReadOnlyList<Item>> ToListAsync();
-  Task<IReadOnlyList<Item>> FindAsync(Expression<Func<Item, bool>> predicate);
+    Task<Item?> GetByIdAsync(int id);
+    Task<IReadOnlyList<Item>> GetAllAsync();
+    Task<IReadOnlyList<Item>> FindAsync(Expression<Func<Item, bool>> predicate);
 
-  // CREATE
-  Task AddAsync(Item item);
+    Task<Item> AddAsync(Item item);
+    Task<Item?> UpdateAsync(Item item);
+    Task<Item?> RemoveAsync(Item item);
 
-  // UPDATE
-  void Update(Item item);
-
-  // DELETE
-  void Remove(Item item);
-
-  // MISC
-  Task<int> CountAsync();
-  Task<bool> ExistsAsync(Expression<Func<Item, bool>> predicate);
-  Task<int> SaveChangesAsync();
+    Task<int> CountAsync();
+    Task<int> SaveChangesAsync();
 }

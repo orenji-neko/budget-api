@@ -9,61 +9,51 @@ namespace BudgetAPI.Repositories;
 
 public class ItemRepository : IItemRepository
 {
-  private readonly AppDbContext _context;
+    private readonly AppDbContext _context;
 
-  public ItemRepository(AppDbContext context)
-  {
-    _context = context;
-  }
+    public ItemRepository(AppDbContext context)
+    {
+        _context = context;
+    }
 
-  public async Task AddAsync(Item item)
-  {
-    await _context.Items.AddAsync(item);
-  }
+    public async Task<int> CountAsync()
+        => await _context.Items.CountAsync();
 
-  public async Task<int> CountAsync()
-  {
-    return await _context.Items.CountAsync();
-  }
+    public async Task<IReadOnlyList<Item>> FindAsync(Expression<Func<Item, bool>> predicate)
+        => await _context.Items.Where(predicate).ToListAsync();
 
-  public async Task<bool> ExistsAsync(Expression<Func<Item, bool>> predicate)
-  {
-    if (predicate == null)
-      throw new ArgumentNullException(nameof(predicate));
+    public async Task<IReadOnlyList<Item>> GetAllAsync()
+        => await _context.Items.AsNoTracking().ToListAsync();
 
-    return await _context.Items.AnyAsync(predicate);
-  }
+    public async Task<Item?> GetByIdAsync(int id)
+        => await _context.Items.FindAsync(id);
 
-  public async Task<IReadOnlyList<Item>> FindAsync(Expression<Func<Item, bool>> predicate)
-  {
-    if (predicate == null)
-      throw new ArgumentNullException(nameof(predicate));
+    public async Task<Item> AddAsync(Item item)
+    {
+        await _context.Items.AddAsync(item);
+        return item;
+    }
 
-    return await _context.Items.Where(predicate).ToListAsync();
-  }
+    public async Task<Item?> UpdateAsync(Item item)
+    {
+        var exists = await _context.Items.AnyAsync(i => i.Id == item.Id);
+        if (!exists)
+            return null;
 
-  public async Task<Item?> GetByIdAsync(int id)
-  {
-    return await _context.Items.FindAsync(id);
-  }
+        _context.Items.Update(item);
+        return item;
+    }
 
-  public async Task<int> SaveChangesAsync()
-  {
-    return await _context.SaveChangesAsync();
-  }
+    public async Task<Item?> RemoveAsync(Item item)
+    {
+        var exists = await _context.Items.AnyAsync(i => i.Id == item.Id);
+        if (!exists)
+            return null;
 
-  public async Task<IReadOnlyList<Item>> ToListAsync()
-  {
-    return await _context.Items.ToListAsync();
-  }
+        _context.Items.Remove(item);
+        return item;
+    }
 
-  public void Update(Item item)
-  {
-    _context.Items.Update(item);
-  }
-
-  public void Remove(Item item)
-  {
-    _context.Items.Remove(item);
-  }
+    public async Task<int> SaveChangesAsync()
+        => await _context.SaveChangesAsync();
 }

@@ -8,54 +8,51 @@ namespace BudgetAPI.Services;
 
 public class ItemService : IItemService
 {
-  public readonly IItemRepository _repository;
+    private readonly IItemRepository _repository;
 
-  public ItemService(IItemRepository repository)
-  {
-    _repository = repository;
-  }
-
-  public async Task<Item?> GetItemAsync(int id)
-    => await _repository.GetByIdAsync(id);
-
-  public async Task<IReadOnlyList<Item>> GetAllItemsAsync()
-    => await _repository.ToListAsync();
-
-  public async Task<IReadOnlyList<Item>> SearchItemsAsync(Expression<Func<Item, bool>> predicate)
-    => await _repository.FindAsync(predicate);
-
-  public async Task CreateItemAsync(Item item)
-  {
-    var _item = new Item
+    public ItemService(IItemRepository repository)
     {
-      Name = item.Name,
-      Price = item.Price,
-      CreatedAt = DateTime.UtcNow
-    };
+        _repository = repository;
+    }
 
-    await _repository.AddAsync(_item);
-    await _repository.SaveChangesAsync();
-  }
+    public async Task<IEnumerable<Item>> GetAllAsync()
+        => await _repository.GetAllAsync();
 
-  public async Task UpdateItemAsync(int id, Item item)
-  {
-    // check if item exists
-    var _item = await _repository.GetByIdAsync(id) ??
-      throw new KeyNotFoundException($"Item with id {id} not found.");
+    public async Task<Item?> GetByIdAsync(int id)
+        => await _repository.GetByIdAsync(id);
 
-    _item.Name = item.Name;
-    _item.Price = item.Price;
+    public async Task<Item?> CreateAsync(Item item)
+    {
+        await _repository.AddAsync(item);
+        await _repository.SaveChangesAsync();
 
-    _repository.Update(_item);
-    await _repository.SaveChangesAsync();
-  }
+        return item;
+    }
 
-  public async Task DeleteItemAsync(int id)
-  {
-    var _item = await _repository.GetByIdAsync(id) ??
-      throw new KeyNotFoundException($"Item with id {id} not found.");
+    public async Task<Item?> DeleteAsync(int id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item is null)
+            return null;
 
-    _repository.Remove(_item);
-    await _repository.SaveChangesAsync();
-  }
+        await _repository.RemoveAsync(item);
+        await _repository.SaveChangesAsync();
+
+        return item;
+    }
+
+    public async Task<Item?> UpdateAsync(Item item)
+    {
+        var _item = await _repository.GetByIdAsync(item.Id);
+        if (_item is null)
+            return null;
+
+        _item.Name = item.Name;
+        _item.Price = item.Price;
+
+        await _repository.UpdateAsync(_item);
+        await _repository.SaveChangesAsync();
+
+        return item;
+    }
 }
