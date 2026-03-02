@@ -482,4 +482,4 @@ $RECYCLE.BIN/
 *.swp
 
 # Database
-dev.db
+dev.*
